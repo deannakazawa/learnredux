@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { connect } from "react-redux";
+import "./App.css";
+import { increment, decrement } from "./redux/actions/counter";
+import AnotherValue from "./components/anotherValue";
+import { getData } from "./redux/actions/getPhoto";
 
-function App() {
+function App(props) {
+  const getDataFromProps = props.getData
+
+  React.useEffect(() => {
+    getDataFromProps()
+  }, [getDataFromProps]);
+
+  console.log(props)
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>{props.value}</h1>
+
+      <section>
+        <button onClick={props.increment}> + </button>
+        <br />
+        <button onClick={props.decrement}> - </button>
+      </section>
+      <AnotherValue />
+      {props.isLoading && <div>Loading</div>}
+      {props.photos && 
+       props.photos.map((data, i)=>(
+        <div key= {i}>
+          <img src={data.picture.medium} alt="user"/>
+        </div>
+       ))}
+       
+
     </div>
   );
 }
-
-export default App;
+const mapStateToProps = state => {
+  console.log(state)
+  return {
+    value: state.counter.value,
+    photos: state.photos.data.results,
+    isLoading: state.photos.isLoading,
+    error: state.photos.error
+  };
+};
+const mapDispatchToProps = { increment, decrement, getData };
+export default connect(mapStateToProps, mapDispatchToProps)(App);
